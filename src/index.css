@@ -2,41 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* StoryBook Creator Design System - Whimsical & Child-Friendly */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Whimsical Background Gradients */
+    --background: 220 100% 97%;
+    --foreground: 230 15% 15%;
 
+    /* Soft Card Backgrounds */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 230 15% 15%;
 
+    /* Magical Primary Colors */
+    --primary: 260 100% 70%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 280 100% 80%;
+
+    /* Gentle Secondary Colors */
+    --secondary: 45 100% 85%;
+    --secondary-foreground: 25 40% 25%;
+
+    /* Soft Accent Colors */
+    --accent: 160 60% 75%;
+    --accent-foreground: 160 80% 15%;
+
+    /* Playful Success & Warning */
+    --success: 120 60% 70%;
+    --success-foreground: 120 100% 15%;
+    --warning: 35 100% 75%;
+    --warning-foreground: 25 70% 15%;
+
+    /* Gentle Destructive */
+    --destructive: 0 70% 75%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Soft Borders & Inputs */
+    --border: 220 40% 90%;
+    --input: 220 40% 95%;
+    --ring: 260 100% 70%;
+
+    /* Muted Colors */
+    --muted: 220 20% 95%;
+    --muted-foreground: 220 15% 50%;
+
+    /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 230 15% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Beautiful Gradients */
+    --gradient-magical: linear-gradient(135deg, hsl(260 100% 70%), hsl(280 100% 80%), hsl(300 100% 75%));
+    --gradient-sky: linear-gradient(180deg, hsl(210 100% 90%), hsl(220 100% 95%));
+    --gradient-sunset: linear-gradient(135deg, hsl(25 100% 80%), hsl(45 100% 85%), hsl(60 100% 90%));
+    --gradient-forest: linear-gradient(135deg, hsl(120 40% 70%), hsl(160 60% 75%));
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Storybook Shadows */
+    --shadow-magical: 0 10px 40px -10px hsl(260 100% 70% / 0.3);
+    --shadow-soft: 0 4px 20px -4px hsl(220 20% 60% / 0.2);
+    --shadow-book: 0 8px 32px -8px hsl(230 15% 15% / 0.15);
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
+    /* Border Radius for Playful Design */
+    --radius: 1rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +126,101 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    background: var(--gradient-sky);
+    min-height: 100vh;
+  }
+
+  /* Playful Typography */
+  .story-title {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .story-text {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+    line-height: 1.6;
+  }
+
+  /* Whimsical Animations */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(1deg); }
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+  }
+
+  @keyframes page-turn {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(-90deg); }
+    100% { transform: rotateY(-180deg); }
+  }
+
+  @keyframes magic-sparkle {
+    0% { transform: scale(0) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1) rotate(180deg); opacity: 1; }
+    100% { transform: scale(0) rotate(360deg); opacity: 0; }
+  }
+
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .twinkle {
+    animation: twinkle 2s ease-in-out infinite;
+  }
+
+  .page-turn {
+    animation: page-turn 0.8s ease-in-out;
+  }
+
+  .magic-sparkle {
+    animation: magic-sparkle 1.5s ease-in-out infinite;
+  }
+
+  /* Interactive Elements */
+  .storybook-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+
+  .storybook-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-magical);
+  }
+
+  .magical-button {
+    background: var(--gradient-magical);
+    border: none;
+    box-shadow: var(--shadow-magical);
+    transition: all 0.3s ease;
+  }
+
+  .magical-button:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 15px 50px -10px hsl(260 100% 70% / 0.4);
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: var(--radius);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--gradient-magical);
+    border-radius: var(--radius);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary));
   }
 }
