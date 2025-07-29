@@ -19,7 +19,6 @@ interface StoryFormData {
   moralLesson: string;
   readingLevel: string;
   geminiKey: string;
-  openaiKey: string;
 }
 
 interface StoryFormProps {
@@ -46,7 +45,6 @@ const StoryForm: React.FC<StoryFormProps> = ({ onSubmit, isLoading }) => {
     moralLesson: '',
     readingLevel: 'beginner',
     geminiKey: '',
-    openaiKey: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -80,7 +78,7 @@ const StoryForm: React.FC<StoryFormProps> = ({ onSubmit, isLoading }) => {
               API Configuration
             </CardTitle>
             <CardDescription>
-              Add your API keys to power the story generation magic!
+              Add your Gemini API key to power the story generation magic! Images are generated automatically using free services.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -94,20 +92,6 @@ const StoryForm: React.FC<StoryFormProps> = ({ onSubmit, isLoading }) => {
                 placeholder="Enter your Gemini API key..."
                 value={formData.geminiKey}
                 onChange={(e) => updateFormData('geminiKey', e.target.value)}
-                className="mt-1"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="openaiKey" className="text-sm font-medium">
-                OpenAI API Key (for image generation)
-              </Label>
-              <Input
-                id="openaiKey"
-                type="password"
-                placeholder="Enter your OpenAI API key..."
-                value={formData.openaiKey}
-                onChange={(e) => updateFormData('openaiKey', e.target.value)}
                 className="mt-1"
                 required
               />
@@ -269,7 +253,7 @@ const StoryForm: React.FC<StoryFormProps> = ({ onSubmit, isLoading }) => {
             variant="magical"
             size="xl"
             className="relative w-full text-xl font-bold py-6 shadow-2xl transform transition-all duration-300 hover:shadow-magical animate-pulse hover:animate-none"
-            disabled={isLoading || !formData.childName || !formData.theme || !formData.geminiKey || !formData.openaiKey}
+            disabled={isLoading || !formData.childName || !formData.theme || !formData.geminiKey}
           >
             {isLoading ? (
               <>

@@ -10,7 +10,6 @@ export interface StoryGenerationParams {
   moralLesson: string;
   readingLevel: string;
   geminiKey: string;
-  openaiKey: string;
 }
 
 export interface StoryPage {
@@ -203,34 +202,19 @@ Please create a magical, engaging story that ${params.childName} will love!`;
     }
   }
 
-  private async generateImageWithOpenAI(prompt: string, openaiKey: string): Promise<string> {
+  private async generateImageWithPollinations(prompt: string): Promise<string> {
     try {
       const enhancedPrompt = `Children's book illustration: ${prompt}. Soft, colorful, child-friendly art style, whimsical and magical, suitable for children, high quality digital art, warm lighting`;
-
-      const response = await fetch('https://api.openai.com/v1/images/generations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openaiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'dall-e-3',
-          prompt: enhancedPrompt,
-          size: '1024x1024',
-          quality: 'standard',
-          n: 1,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.data[0].url;
+      
+      // URL encode the prompt for safe use in URL
+      const encodedPrompt = encodeURIComponent(enhancedPrompt);
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
+      
+      console.log('Generating image with Pollinations:', imageUrl);
+      return imageUrl;
     } catch (error) {
-      console.error('Error generating image with OpenAI:', error);
-      throw new Error('Failed to generate image. Please check your OpenAI API key.');
+      console.error('Error generating image with Pollinations:', error);
+      throw new Error('Failed to generate image.');
     }
   }
 
@@ -246,7 +230,7 @@ Please create a magical, engaging story that ${params.childName} will love!`;
       onProgress(40, 'Creating beautiful cover art...');
 
       // Generate cover image
-      story.coverImage = await this.generateImageWithOpenAI(story.coverImagePrompt, params.openaiKey);
+      story.coverImage = await this.generateImageWithPollinations(story.coverImagePrompt);
       onProgress(60, 'Illustrating story pages...');
 
       // Generate images for each page
@@ -254,7 +238,7 @@ Please create a magical, engaging story that ${params.childName} will love!`;
       for (let i = 0; i < story.pages.length; i++) {
         const page = story.pages[i];
         try {
-          page.imageUrl = await this.generateImageWithOpenAI(page.imagePrompt, params.openaiKey);
+          page.imageUrl = await this.generateImageWithPollinations(page.imagePrompt);
           const progress = 60 + ((i + 1) / totalPages) * 35;
           onProgress(progress, `Illustrating page ${i + 1} of ${totalPages}...`);
         } catch (error) {
