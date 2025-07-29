@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Home, Download, Share2, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface StoryPage {
   pageNumber: number;
@@ -25,6 +28,10 @@ const StoryBook: React.FC<StoryBookProps> = ({ story, onBackHome }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [isPageTurning, setIsPageTurning] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const storyBookRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const totalPages = story.pages.length + 1; // +1 for cover
 
@@ -43,18 +50,118 @@ const StoryBook: React.FC<StoryBookProps> = ({ story, onBackHome }) => {
   };
 
   const toggleAudio = () => {
-    setIsAudioPlaying(!isAudioPlaying);
+    if (isAudioPlaying) {
+      // Stop speech
+      window.speechSynthesis.cancel();
+      setIsAudioPlaying(false);
+    } else {
+      // Start speech
+      const currentText = getCurrentPageText();
+      if (currentText) {
+        const utterance = new SpeechSynthesisUtterance(currentText);
+        utterance.rate = 0.8;
+        utterance.pitch = 1.1;
+        utterance.volume = 0.9;
+        
+        utterance.onend = () => {
+          setIsAudioPlaying(false);
+        };
+        
+        speechSynthRef.current = utterance;
+        window.speechSynthesis.speak(utterance);
+        setIsAudioPlaying(true);
+        
+        toast({
+          title: "Reading aloud",
+          description: "The story is being read to you!",
+        });
+      }
+    }
   };
 
-  const downloadStory = () => {
-    // Implement PDF download functionality
-    console.log('Downloading story...');
+  const getCurrentPageText = () => {
+    if (currentPage === 0) {
+      return `${story.title}. A Magical Story Created Just For You.`;
+    } else {
+      const page = story.pages[currentPage - 1];
+      return page ? page.text : '';
+    }
   };
 
-  const shareStory = () => {
-    // Implement sharing functionality
-    console.log('Sharing story...');
+  const downloadStory = async () => {
+    setIsDownloading(true);
+    try {
+      const pdf = new jsPDF();
+      pdf.setFontSize(16);
+      
+      // Add title page
+      pdf.text(story.title, 20, 30);
+      pdf.setFontSize(12);
+      pdf.text('A Magical Story Created Just For You', 20, 50);
+      
+      // Add each page
+      for (let i = 0; i < story.pages.length; i++) {
+        pdf.addPage();
+        const page = story.pages[i];
+        const lines = pdf.splitTextToSize(page.text, 170);
+        pdf.text(lines, 20, 30);
+        pdf.text(`Page ${i + 1}`, 20, pdf.internal.pageSize.height - 20);
+      }
+      
+      pdf.save(`${story.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      
+      toast({
+        title: "Download complete!",
+        description: "Your story has been saved as a PDF.",
+      });
+    } catch (error) {
+      toast({
+        title: "Download failed",
+        description: "There was an error creating the PDF.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloading(false);
+    }
   };
+
+  const shareStory = async () => {
+    const shareData = {
+      title: story.title,
+      text: `Check out this amazing story: "${story.title}"`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        toast({
+          title: "Story shared!",
+          description: "Thank you for sharing this magical story.",
+        });
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(`${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`);
+        toast({
+          title: "Link copied!",
+          description: "The story link has been copied to your clipboard.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Sharing failed",
+        description: "There was an error sharing the story.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Cleanup speech synthesis on unmount
+  React.useEffect(() => {
+    return () => {
+      window.speechSynthesis.cancel();
+    };
+  }, []);
 
   const currentContent = currentPage === 0 ? 'cover' : story.pages[currentPage - 1];
 
@@ -73,8 +180,8 @@ const StoryBook: React.FC<StoryBookProps> = ({ story, onBackHome }) => {
             <Button variant="outline" size="sm" onClick={toggleAudio}>
               {isAudioPlaying ? <VolumeX /> : <Volume2 />}
             </Button>
-            <Button variant="outline" size="sm" onClick={downloadStory}>
-              <Download />
+            <Button variant="outline" size="sm" onClick={downloadStory} disabled={isDownloading}>
+              <Download className={isDownloading ? "animate-spin" : ""} />
             </Button>
             <Button variant="outline" size="sm" onClick={shareStory}>
               <Share2 />
