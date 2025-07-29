@@ -32,36 +32,57 @@ class StoryService {
     const prompt = this.buildStoryPrompt(params);
     
     try {
+      console.log('Making request to Gemini API with endpoint:', `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${params.geminiKey.substring(0, 10)}...`);
+      
+      const requestBody = {
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.8,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 8192,
+        }
+      };
+      
+      console.log('Request body structure:', JSON.stringify(requestBody, null, 2));
+      
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${params.geminiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.8,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 8192,
-          }
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        throw new Error(`Gemini API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Gemini API error response:', errorText);
+        throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Gemini API response:', data);
+      
+      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+        console.error('Unexpected response structure:', data);
+        throw new Error('Invalid response structure from Gemini API');
+      }
+      
       const storyText = data.candidates[0].content.parts[0].text;
       
       return this.parseStoryResponse(storyText);
     } catch (error) {
       console.error('Error generating story with Gemini:', error);
+      if (error instanceof Error) {
+        throw new Error(`Failed to generate story: ${error.message}`);
+      }
       throw new Error('Failed to generate story. Please check your Gemini API key.');
     }
   }
