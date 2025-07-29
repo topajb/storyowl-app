@@ -32,7 +32,7 @@ class StoryService {
     const prompt = this.buildStoryPrompt(params);
     
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${params.geminiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${params.geminiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
