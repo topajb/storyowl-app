@@ -262,25 +262,28 @@ const StoryForm: React.FC<StoryFormProps> = ({ onSubmit, isLoading }) => {
           </CardContent>
         </Card>
 
-        <Button
-          type="submit"
-          variant="magical"
-          size="xl"
-          className="w-full"
-          disabled={isLoading || !formData.childName || !formData.theme || !formData.geminiKey || !formData.openaiKey}
-        >
-          {isLoading ? (
-            <>
-              <Sparkles className="animate-spin" />
-              Creating Your Magical Story...
-            </>
-          ) : (
-            <>
-              <Wand2 />
-              Create My Story!
-            </>
-          )}
-        </Button>
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-magical rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
+          <Button
+            type="submit"
+            variant="magical"
+            size="xl"
+            className="relative w-full text-xl font-bold py-6 shadow-2xl transform transition-all duration-300 hover:shadow-magical animate-pulse hover:animate-none"
+            disabled={isLoading || !formData.childName || !formData.theme || !formData.geminiKey || !formData.openaiKey}
+          >
+            {isLoading ? (
+              <>
+                <Sparkles className="animate-spin mr-3" />
+                Creating Your Magical Story...
+              </>
+            ) : (
+              <>
+                <Wand2 className="mr-3 group-hover:animate-bounce" />
+                ✨ Create My Story! ✨
+              </>
+            )}
+          </Button>
+        </div>
       </form>
     </div>
   );
