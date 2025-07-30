@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Home, Download, Share2, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { ThemeToggle } from './ThemeToggle';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -29,6 +30,7 @@ const StoryBook: React.FC<StoryBookProps> = ({ story, onBackHome }) => {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [isPageTurning, setIsPageTurning] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [autoAdvance, setAutoAdvance] = useState(false);
   const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const storyBookRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -65,6 +67,12 @@ const StoryBook: React.FC<StoryBookProps> = ({ story, onBackHome }) => {
         
         utterance.onend = () => {
           setIsAudioPlaying(false);
+          // Auto-advance to next page if enabled and not on last page
+          if (autoAdvance && currentPage < totalPages - 1) {
+            setTimeout(() => {
+              handlePageTurn('next');
+            }, 1000);
+          }
         };
         
         speechSynthRef.current = utterance;
@@ -91,28 +99,79 @@ const StoryBook: React.FC<StoryBookProps> = ({ story, onBackHome }) => {
   const downloadStory = async () => {
     setIsDownloading(true);
     try {
-      const pdf = new jsPDF();
-      pdf.setFontSize(16);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
       
-      // Add title page
-      pdf.text(story.title, 20, 30);
-      pdf.setFontSize(12);
-      pdf.text('A Magical Story Created Just For You', 20, 50);
-      
-      // Add each page
-      for (let i = 0; i < story.pages.length; i++) {
-        pdf.addPage();
-        const page = story.pages[i];
-        const lines = pdf.splitTextToSize(page.text, 170);
-        pdf.text(lines, 20, 30);
-        pdf.text(`Page ${i + 1}`, 20, pdf.internal.pageSize.height - 20);
+      // Capture the entire storybook as canvas for high-quality PDF
+      if (storyBookRef.current) {
+        // Create PDF with cover page
+        pdf.setFontSize(20);
+        pdf.text(story.title, pageWidth / 2, 40, { align: 'center' });
+        pdf.setFontSize(14);
+        pdf.text('A Magical Story Created Just For You', pageWidth / 2, 60, { align: 'center' });
+        
+        // Add cover image if available
+        if (story.coverImage) {
+          try {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              canvas.width = img.width;
+              canvas.height = img.height;
+              ctx?.drawImage(img, 0, 0);
+              const imgData = canvas.toDataURL('image/jpeg', 0.8);
+              pdf.addImage(imgData, 'JPEG', pageWidth / 2 - 40, 80, 80, 80);
+            };
+            img.src = story.coverImage;
+          } catch (error) {
+            console.error('Error adding cover image to PDF:', error);
+          }
+        }
+        
+        // Add each story page with images
+        for (let i = 0; i < story.pages.length; i++) {
+          pdf.addPage();
+          const page = story.pages[i];
+          
+          // Add page image if available
+          if (page.imageUrl) {
+            try {
+              const img = new Image();
+              img.crossOrigin = 'anonymous';
+              img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx?.drawImage(img, 0, 0);
+                const imgData = canvas.toDataURL('image/jpeg', 0.8);
+                pdf.addImage(imgData, 'JPEG', 20, 20, pageWidth - 40, 100);
+              };
+              img.src = page.imageUrl;
+            } catch (error) {
+              console.error('Error adding page image to PDF:', error);
+            }
+          }
+          
+          // Add text content
+          pdf.setFontSize(12);
+          const lines = pdf.splitTextToSize(page.text, pageWidth - 40);
+          pdf.text(lines, 20, page.imageUrl ? 140 : 30);
+          
+          // Add page number
+          pdf.setFontSize(10);
+          pdf.text(`Page ${i + 1}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+        }
       }
       
       pdf.save(`${story.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
       
       toast({
         title: "Download complete!",
-        description: "Your story has been saved as a PDF.",
+        description: "Your story with images has been saved as a PDF.",
       });
     } catch (error) {
       toast({
@@ -171,14 +230,31 @@ const StoryBook: React.FC<StoryBookProps> = ({ story, onBackHome }) => {
       <div className="max-w-6xl w-full">
         {/* Controls */}
         <div className="flex justify-between items-center mb-6">
-          <Button variant="whimsical" onClick={onBackHome}>
-            <Home className="mr-2" />
-            Back Home
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="whimsical" onClick={onBackHome}>
+              <Home className="mr-2" />
+              Back Home
+            </Button>
+            <ThemeToggle />
+          </div>
           
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={toggleAudio}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={toggleAudio}
+              className={isAudioPlaying ? "bg-primary/10" : ""}
+            >
               {isAudioPlaying ? <VolumeX /> : <Volume2 />}
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setAutoAdvance(!autoAdvance)}
+              className={autoAdvance ? "bg-primary/10" : ""}
+              title="Auto-advance pages when reading"
+            >
+              🔄
             </Button>
             <Button variant="outline" size="sm" onClick={downloadStory} disabled={isDownloading}>
               <Download className={isDownloading ? "animate-spin" : ""} />
@@ -191,28 +267,37 @@ const StoryBook: React.FC<StoryBookProps> = ({ story, onBackHome }) => {
 
         {/* Book */}
         <div className="relative mx-auto" style={{ perspective: '1500px' }}>
-          <Card className={cn(
-            "storybook-card border-4 border-accent/30 shadow-book transition-all duration-800",
-            isPageTurning && "page-turn"
-          )}>
+          <Card 
+            ref={storyBookRef}
+            className={cn(
+              "storybook-card border-4 border-accent/30 shadow-book transition-all duration-800 transform-gpu",
+              isPageTurning && "animate-[rotateY_0.8s_ease-in-out] [transform-style:preserve-3d]"
+            )}
+            style={{
+              transformOrigin: 'center left',
+              ...(isPageTurning && {
+                animation: 'book-flip 0.8s ease-in-out'
+              })
+            }}
+          >
             <CardContent className="p-0">
-              <div className="grid md:grid-cols-2 min-h-[600px]">
+              <div className="grid md:grid-cols-2 min-h-[700px]">
                 {/* Left Page */}
                 <div className="p-8 flex flex-col justify-center items-center bg-card border-r border-border">
                   {currentPage === 0 ? (
                     // Cover Page
                     <div className="text-center space-y-6">
                       <div className="space-y-4">
-                        <h1 className="story-title text-4xl md:text-5xl font-bold text-foreground">
+                        <h1 className="story-title text-5xl md:text-6xl font-bold text-foreground">
                           {story.title}
                         </h1>
                         <div className="w-24 h-1 bg-gradient-magical mx-auto rounded-full"></div>
-                        <p className="text-muted-foreground text-lg">
+                        <p className="text-muted-foreground text-xl">
                           A Magical Story Created Just For You
                         </p>
                       </div>
                       {story.coverImage && (
-                        <div className="w-48 h-48 mx-auto rounded-2xl overflow-hidden shadow-magical">
+                        <div className="w-64 h-64 mx-auto rounded-2xl overflow-hidden shadow-magical">
                           <img
                             src={story.coverImage}
                             alt="Story Cover"
@@ -223,21 +308,21 @@ const StoryBook: React.FC<StoryBookProps> = ({ story, onBackHome }) => {
                     </div>
                   ) : currentPage % 2 === 1 ? (
                     // Left page content
-                    <div className="space-y-6 text-center">
+                    <div className="space-y-6 text-center h-full flex flex-col justify-center">
                       {currentContent && typeof currentContent === 'object' && currentContent.imageUrl && (
-                        <div className="w-full max-w-sm mx-auto rounded-xl overflow-hidden shadow-soft">
+                        <div className="w-full h-full rounded-xl overflow-hidden shadow-soft">
                           <img
                             src={currentContent.imageUrl}
                             alt={`Page ${currentContent.pageNumber}`}
-                            className="w-full h-64 object-cover"
+                            className="w-full h-full object-cover"
                           />
                         </div>
                       )}
                     </div>
                   ) : (
                     // Left page text
-                    <div className="space-y-4">
-                      <p className="story-text text-lg leading-relaxed text-foreground">
+                    <div className="space-y-4 h-full flex flex-col justify-center">
+                      <p className="story-text text-xl md:text-2xl leading-relaxed text-foreground font-medium">
                         {currentContent && typeof currentContent === 'object' ? currentContent.text : ''}
                       </p>
                     </div>
@@ -250,26 +335,26 @@ const StoryBook: React.FC<StoryBookProps> = ({ story, onBackHome }) => {
                     // Cover page right side
                     <div className="text-center space-y-4">
                       <div className="text-6xl">📚</div>
-                      <p className="story-text text-muted-foreground">
+                      <p className="story-text text-xl text-muted-foreground">
                         Turn the page to begin your adventure...
                       </p>
                     </div>
                   ) : currentPage % 2 === 1 ? (
                     // Right page text
-                    <div className="space-y-4">
-                      <p className="story-text text-lg leading-relaxed text-foreground">
+                    <div className="space-y-4 h-full flex flex-col justify-center">
+                      <p className="story-text text-xl md:text-2xl leading-relaxed text-foreground font-medium">
                         {currentContent && typeof currentContent === 'object' ? currentContent.text : ''}
                       </p>
                     </div>
                   ) : (
                     // Right page image
-                    <div className="space-y-6 text-center">
+                    <div className="space-y-6 text-center h-full flex flex-col justify-center">
                       {currentContent && typeof currentContent === 'object' && currentContent.imageUrl && (
-                        <div className="w-full max-w-sm mx-auto rounded-xl overflow-hidden shadow-soft">
+                        <div className="w-full h-full rounded-xl overflow-hidden shadow-soft">
                           <img
                             src={currentContent.imageUrl}
                             alt={`Page ${currentContent.pageNumber}`}
-                            className="w-full h-64 object-cover"
+                            className="w-full h-full object-cover"
                           />
                         </div>
                       )}

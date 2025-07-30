@@ -204,17 +204,47 @@ Please create a magical, engaging story that ${params.childName} will love!`;
 
   private async generateImageWithPollinations(prompt: string): Promise<string> {
     try {
-      const enhancedPrompt = `Children's book illustration: ${prompt}. Soft, colorful, child-friendly art style, whimsical and magical, suitable for children, high quality digital art, warm lighting`;
+      // Clean and enhance the prompt for better image quality
+      const enhancedPrompt = `${prompt}, high quality, detailed, beautiful, children's book illustration style, vibrant colors, whimsical, magical`
+        .replace(/[^a-zA-Z0-9\s,.-]/g, '') // Remove special characters
+        .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+        .trim();
       
-      // URL encode the prompt for safe use in URL
-      const encodedPrompt = encodeURIComponent(enhancedPrompt);
-      const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
+      // Use the new Pollinations API endpoint with POST method
+      const response = await fetch('https://pollinations.ai/api/prompt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: enhancedPrompt,
+          model: 'flux',
+          width: 1024,
+          height: 1024,
+          seed: Math.floor(Math.random() * 1000000),
+          nologo: true
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const imageUrl = data.url || data.image_url || `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?width=1024&height=1024&nologo=true&model=flux`;
       
-      console.log('Generating image with Pollinations:', imageUrl);
+      console.log('Generated image URL:', imageUrl);
+      
       return imageUrl;
     } catch (error) {
       console.error('Error generating image with Pollinations:', error);
-      throw new Error('Failed to generate image.');
+      // Fallback to GET method if POST fails
+      const enhancedPrompt = `${prompt}, high quality, detailed, beautiful, children's book illustration style, vibrant colors, whimsical, magical`
+        .replace(/[^a-zA-Z0-9\s,.-]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const encodedPrompt = encodeURIComponent(enhancedPrompt);
+      return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&seed=${Math.floor(Math.random() * 1000000)}&model=flux&nologo=true`;
     }
   }
 
