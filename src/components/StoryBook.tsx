@@ -98,85 +98,116 @@ const StoryBook: React.FC<StoryBookProps> = ({ story, onBackHome }) => {
 
   const downloadStory = async () => {
     setIsDownloading(true);
+    toast({
+      title: "Generating PDF",
+      description: "Creating your storybook PDF with images...",
+    });
+
     try {
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       
-      // Capture the entire storybook as canvas for high-quality PDF
-      if (storyBookRef.current) {
-        // Create PDF with cover page
-        pdf.setFontSize(20);
-        pdf.text(story.title, pageWidth / 2, 40, { align: 'center' });
-        pdf.setFontSize(14);
-        pdf.text('A Magical Story Created Just For You', pageWidth / 2, 60, { align: 'center' });
-        
-        // Add cover image if available
-        if (story.coverImage) {
-          try {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
+      // Helper function to convert image to base64 and wait for loading
+      const loadImageAsBase64 = async (url: string): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            try {
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
+              if (!ctx) {
+                resolve('');
+                return;
+              }
               canvas.width = img.width;
               canvas.height = img.height;
-              ctx?.drawImage(img, 0, 0);
-              const imgData = canvas.toDataURL('image/jpeg', 0.8);
-              pdf.addImage(imgData, 'JPEG', pageWidth / 2 - 40, 80, 80, 80);
-            };
-            img.src = story.coverImage;
-          } catch (error) {
-            console.error('Error adding cover image to PDF:', error);
-          }
-        }
-        
-        // Add each story page with images
-        for (let i = 0; i < story.pages.length; i++) {
-          pdf.addPage();
-          const page = story.pages[i];
-          
-          // Add page image if available
-          if (page.imageUrl) {
-            try {
-              const img = new Image();
-              img.crossOrigin = 'anonymous';
-              img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx?.drawImage(img, 0, 0);
-                const imgData = canvas.toDataURL('image/jpeg', 0.8);
-                pdf.addImage(imgData, 'JPEG', 20, 20, pageWidth - 40, 100);
-              };
-              img.src = page.imageUrl;
+              ctx.drawImage(img, 0, 0);
+              const dataURL = canvas.toDataURL('image/jpeg', 0.9);
+              resolve(dataURL);
             } catch (error) {
-              console.error('Error adding page image to PDF:', error);
+              console.error('Error converting image to base64:', error);
+              resolve('');
             }
+          };
+          img.onerror = () => {
+            console.error('Error loading image:', url);
+            resolve('');
+          };
+          img.src = url;
+        });
+      };
+      
+      // Cover Page
+      pdf.setFontSize(24);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(story.title, pageWidth / 2, 40, { align: 'center' });
+      
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('A Magical Story Created Just For You', pageWidth / 2, 60, { align: 'center' });
+      
+      // Add cover image if available
+      if (story.coverImage) {
+        try {
+          const coverImageData = await loadImageAsBase64(story.coverImage);
+          if (coverImageData) {
+            const imgWidth = 120;
+            const imgHeight = 120;
+            const x = (pageWidth - imgWidth) / 2;
+            pdf.addImage(coverImageData, 'JPEG', x, 80, imgWidth, imgHeight);
           }
-          
-          // Add text content
-          pdf.setFontSize(12);
-          const lines = pdf.splitTextToSize(page.text, pageWidth - 40);
-          pdf.text(lines, 20, page.imageUrl ? 140 : 30);
-          
-          // Add page number
-          pdf.setFontSize(10);
-          pdf.text(`Page ${i + 1}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+        } catch (error) {
+          console.error('Error adding cover image to PDF:', error);
         }
       }
       
-      pdf.save(`${story.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      // Add each story page with images
+      for (let i = 0; i < story.pages.length; i++) {
+        pdf.addPage();
+        const page = story.pages[i];
+        
+        // Add page image if available
+        if (page.imageUrl) {
+          try {
+            const pageImageData = await loadImageAsBase64(page.imageUrl);
+            if (pageImageData) {
+              const imgWidth = pageWidth - 40;
+              const imgHeight = 120;
+              pdf.addImage(pageImageData, 'JPEG', 20, 20, imgWidth, imgHeight);
+            }
+          } catch (error) {
+            console.error('Error adding page image to PDF:', error);
+          }
+        }
+        
+        // Add text content
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'normal');
+        const lines = pdf.splitTextToSize(page.text, pageWidth - 40);
+        const textY = page.imageUrl ? 160 : 40;
+        pdf.text(lines, 20, textY);
+        
+        // Add page number
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'italic');
+        pdf.text(`Page ${page.pageNumber}`, pageWidth / 2, pageHeight - 15, { align: 'center' });
+      }
+      
+      // Save the PDF
+      const fileName = `${story.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+      pdf.save(fileName);
       
       toast({
-        title: "Download complete!",
-        description: "Your story with images has been saved as a PDF.",
+        title: "PDF Downloaded Successfully!",
+        description: "Your complete storybook with images has been saved.",
       });
     } catch (error) {
+      console.error('Error generating PDF:', error);
       toast({
-        title: "Download failed",
-        description: "There was an error creating the PDF.",
+        title: "Download Failed",
+        description: "There was an error creating the PDF. Please try again.",
         variant: "destructive",
       });
     } finally {
