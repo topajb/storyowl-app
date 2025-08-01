@@ -1,17 +1,25 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Upload, X, Camera } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Upload, X, Camera, Wand2, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { avatarService, AvatarData } from "@/services/avatarService";
 
 interface PhotoUploadProps {
   onPhotoChange: (photo: string | null) => void;
+  onAvatarGenerated: (avatar: AvatarData) => void;
   currentPhoto?: string | null;
+  childName: string;
 }
 
-export const PhotoUpload = ({ onPhotoChange, currentPhoto }: PhotoUploadProps) => {
+export const PhotoUpload = ({ onPhotoChange, onAvatarGenerated, currentPhoto, childName }: PhotoUploadProps) => {
   const [preview, setPreview] = useState<string | null>(currentPhoto || null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
+  const [huggingFaceKey, setHuggingFaceKey] = useState("");
+  const [showKeyInput, setShowKeyInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (file: File) => {
@@ -62,6 +70,33 @@ export const PhotoUpload = ({ onPhotoChange, currentPhoto }: PhotoUploadProps) =
     setIsDragging(false);
   };
 
+  const generateAvatar = async () => {
+    if (!preview || !childName) {
+      toast({
+        title: "Missing Information",
+        description: "Please upload a photo and enter child's name first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!huggingFaceKey) {
+      setShowKeyInput(true);
+      return;
+    }
+
+    setIsGeneratingAvatar(true);
+    try {
+      avatarService.initializeHuggingFace(huggingFaceKey);
+      const avatarData = await avatarService.generateCartoonAvatar(preview, childName);
+      onAvatarGenerated(avatarData);
+    } catch (error) {
+      console.error('Avatar generation error:', error);
+    } finally {
+      setIsGeneratingAvatar(false);
+    }
+  };
+
   const removePhoto = () => {
     setPreview(null);
     onPhotoChange(null);
@@ -97,9 +132,57 @@ export const PhotoUpload = ({ onPhotoChange, currentPhoto }: PhotoUploadProps) =
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium text-green-700 mb-1">Photo uploaded! ✨</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground mb-3">
                 This photo will be used to create a personalized avatar that appears throughout your child's story.
               </p>
+              
+              {showKeyInput ? (
+                <div className="space-y-2">
+                  <Label htmlFor="hfKey" className="text-xs">Hugging Face API Key (optional)</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="hfKey"
+                      type="password"
+                      placeholder="hf_..."
+                      value={huggingFaceKey}
+                      onChange={(e) => setHuggingFaceKey(e.target.value)}
+                      className="text-xs h-8"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={generateAvatar}
+                      disabled={isGeneratingAvatar || !huggingFaceKey}
+                      className="h-8 px-3 text-xs"
+                    >
+                      {isGeneratingAvatar ? (
+                        <Sparkles className="h-3 w-3 animate-spin" />
+                      ) : (
+                        "Generate"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={generateAvatar}
+                  disabled={isGeneratingAvatar}
+                  className="w-full text-xs"
+                >
+                  {isGeneratingAvatar ? (
+                    <>
+                      <Sparkles className="h-3 w-3 mr-1 animate-spin" />
+                      Creating Avatar...
+                    </>
+                  ) : (
+                    <>
+                      <Wand2 className="h-3 w-3 mr-1" />
+                      Create Cartoon Avatar
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </div>
         </Card>

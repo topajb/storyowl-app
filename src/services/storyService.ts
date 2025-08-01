@@ -1,5 +1,7 @@
 import { toast } from '@/hooks/use-toast';
 
+import { AvatarData } from './avatarService';
+
 export interface StoryGenerationParams {
   childName: string;
   age: number;
@@ -11,6 +13,7 @@ export interface StoryGenerationParams {
   readingLevel: string;
   language: string;
   geminiKey: string;
+  avatarData?: AvatarData;
 }
 
 export interface StoryPage {
@@ -94,7 +97,11 @@ class StoryService {
       ? `\n\nIMPORTANT: Write the entire story in ${this.getLanguageName(params.language)} language. Use proper ${this.getLanguageName(params.language)} grammar, vocabulary, and cultural context appropriate for children. The JSON structure should remain in English, but all story content (title, text) should be in ${this.getLanguageName(params.language)}.`
       : '';
     
-    return `Create a personalized children's story with the following specifications:${languageInstruction}
+    const avatarInstruction = params.avatarData 
+      ? `\n\nHERO CHARACTER: ${params.childName} should be described as: ${params.avatarData.description}. Make sure this character appears in every page of the story as the main protagonist.`
+      : '';
+    
+    return `Create a personalized children's story with the following specifications:${languageInstruction}${avatarInstruction}
 
 STORY DETAILS:
 - Child's name: ${params.childName}
@@ -234,10 +241,13 @@ Please create a magical, engaging story that ${params.childName} will love!`;
     }
   }
 
-  private async generateImageWithPollinations(prompt: string): Promise<string> {
+  private async generateImageWithPollinations(prompt: string, avatarData?: AvatarData): Promise<string> {
     try {
+      // Enhance prompt with avatar information if available
+      const avatarEnhancement = avatarData ? `, featuring ${avatarData.description}` : '';
+      
       // Clean and enhance the prompt for better image quality
-      const enhancedPrompt = `${prompt}, high quality, detailed, beautiful, children's book illustration style, vibrant colors, whimsical, magical`
+      const enhancedPrompt = `${prompt}${avatarEnhancement}, high quality, detailed, beautiful, children's book illustration style, vibrant colors, whimsical, magical`
         .replace(/[^a-zA-Z0-9\s,.-]/g, '') // Remove special characters
         .replace(/\s+/g, ' ') // Replace multiple spaces with single space
         .trim();
@@ -292,7 +302,7 @@ Please create a magical, engaging story that ${params.childName} will love!`;
       onProgress(40, 'Creating beautiful cover art...');
 
       // Generate cover image
-      story.coverImage = await this.generateImageWithPollinations(story.coverImagePrompt);
+      story.coverImage = await this.generateImageWithPollinations(story.coverImagePrompt, params.avatarData);
       onProgress(60, 'Illustrating story pages...');
 
       // Generate images for each page
@@ -300,7 +310,7 @@ Please create a magical, engaging story that ${params.childName} will love!`;
       for (let i = 0; i < story.pages.length; i++) {
         const page = story.pages[i];
         try {
-          page.imageUrl = await this.generateImageWithPollinations(page.imagePrompt);
+          page.imageUrl = await this.generateImageWithPollinations(page.imagePrompt, params.avatarData);
           const progress = 60 + ((i + 1) / totalPages) * 35;
           onProgress(progress, `Illustrating page ${i + 1} of ${totalPages}...`);
         } catch (error) {

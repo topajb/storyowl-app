@@ -9,6 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Star, Sparkles, Heart, Rocket, Fish, TreePine, Castle, Wand2 } from 'lucide-react';
+import { PhotoUpload } from '@/components/PhotoUpload';
+import { MeetYourHero } from '@/components/MeetYourHero';
+import { AvatarData } from '@/services/avatarService';
 
 interface StoryFormData {
   childName: string;
@@ -21,6 +24,8 @@ interface StoryFormData {
   readingLevel: string;
   language: string;
   geminiKey: string;
+  heroPhoto?: string | null;
+  avatarData?: AvatarData;
 }
 
 interface StoryFormProps {
@@ -74,7 +79,10 @@ const StoryForm: React.FC<StoryFormProps> = ({ onSubmit, isLoading }) => {
     readingLevel: 'beginner',
     language: 'english',
     geminiKey: '',
+    heroPhoto: null,
+    avatarData: undefined,
   });
+  const [heroAvatar, setHeroAvatar] = useState<AvatarData | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,6 +91,15 @@ const StoryForm: React.FC<StoryFormProps> = ({ onSubmit, isLoading }) => {
 
   const updateFormData = (field: keyof StoryFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePhotoChange = (photo: string | null) => {
+    updateFormData('heroPhoto', photo);
+  };
+
+  const handleAvatarGenerated = (avatar: AvatarData) => {
+    setHeroAvatar(avatar);
+    updateFormData('avatarData', avatar);
   };
 
   return (
@@ -169,6 +186,19 @@ const StoryForm: React.FC<StoryFormProps> = ({ onSubmit, isLoading }) => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Photo Upload */}
+        <PhotoUpload
+          onPhotoChange={handlePhotoChange}
+          onAvatarGenerated={handleAvatarGenerated}
+          currentPhoto={formData.heroPhoto}
+          childName={formData.childName}
+        />
+
+        {/* Meet Your Hero */}
+        {heroAvatar && formData.childName && (
+          <MeetYourHero avatar={heroAvatar} childName={formData.childName} />
+        )}
 
         {/* Theme Selection */}
         <Card className="storybook-card border-2 border-accent/30">
