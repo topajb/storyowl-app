@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Home, Download, Share2, Volume2, VolumeX } from 'lucide-react';
+import ShareButton from '@/components/ShareButton';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from './ThemeToggle';
@@ -15,6 +16,7 @@ interface StoryPage {
 }
 
 interface Story {
+  id?: string;
   title: string;
   pages: StoryPage[];
   coverImage?: string;
@@ -290,9 +292,12 @@ const StoryBook: React.FC<StoryBookProps> = ({ story, onBackHome }) => {
             <Button variant="outline" size="sm" onClick={downloadStory} disabled={isDownloading}>
               <Download className={isDownloading ? "animate-spin" : ""} />
             </Button>
-            <Button variant="outline" size="sm" onClick={shareStory}>
-              <Share2 />
-            </Button>
+            <ShareButton
+              storyId={story.id || 'temp-id'}
+              storyTitle={story.title}
+              variant="outline"
+              size="sm"
+            />
           </div>
         </div>
 

@@ -19,6 +19,7 @@ interface StoryFormData {
   pageCount: number;
   moralLesson: string;
   readingLevel: string;
+  language: string;
   geminiKey: string;
 }
 
@@ -35,6 +36,31 @@ const themes = [
   { id: 'magic', name: 'Wizard School', icon: Wand2, color: 'bg-gradient-to-r from-indigo-500 to-purple-600' },
 ];
 
+const languages = [
+  { id: 'english', name: 'English', nativeName: 'English' },
+  { id: 'hindi', name: 'Hindi', nativeName: 'हिंदी' },
+  { id: 'bengali', name: 'Bengali', nativeName: 'বাংলা' },
+  { id: 'telugu', name: 'Telugu', nativeName: 'తెలుగు' },
+  { id: 'marathi', name: 'Marathi', nativeName: 'मराठी' },
+  { id: 'tamil', name: 'Tamil', nativeName: 'தமிழ்' },
+  { id: 'gujarati', name: 'Gujarati', nativeName: 'ગુજરાતી' },
+  { id: 'urdu', name: 'Urdu', nativeName: 'اردو' },
+  { id: 'kannada', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
+  { id: 'odia', name: 'Odia', nativeName: 'ଓଡିଆ' },
+  { id: 'punjabi', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ' },
+  { id: 'malayalam', name: 'Malayalam', nativeName: 'മലയാളം' },
+  { id: 'assamese', name: 'Assamese', nativeName: 'অসমীয়া' },
+  { id: 'maithili', name: 'Maithili', nativeName: 'मैथिली' },
+  { id: 'sanskrit', name: 'Sanskrit', nativeName: 'संस्कृतम्' },
+  { id: 'nepali', name: 'Nepali', nativeName: 'नेपाली' },
+  { id: 'konkani', name: 'Konkani', nativeName: 'कोंकणी' },
+  { id: 'manipuri', name: 'Manipuri', nativeName: 'মণিপুরী' },
+  { id: 'bodo', name: 'Bodo', nativeName: 'बड़ो' },
+  { id: 'dogri', name: 'Dogri', nativeName: 'डोगरी' },
+  { id: 'kashmiri', name: 'Kashmiri', nativeName: 'कॉशुर' },
+  { id: 'santali', name: 'Santali', nativeName: 'ᱥᱟᱱᱛᱟᱲᱤ' },
+];
+
 const StoryForm: React.FC<StoryFormProps> = ({ onSubmit, isLoading }) => {
   const { canUseCredit } = useCredits();
   const [formData, setFormData] = useState<StoryFormData>({
@@ -46,6 +72,7 @@ const StoryForm: React.FC<StoryFormProps> = ({ onSubmit, isLoading }) => {
     pageCount: 8,
     moralLesson: '',
     readingLevel: 'beginner',
+    language: 'english',
     geminiKey: '',
   });
 
@@ -244,6 +271,26 @@ const StoryForm: React.FC<StoryFormProps> = ({ onSubmit, isLoading }) => {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            <div>
+              <Label htmlFor="language" className="text-sm font-medium">
+                Story Language
+              </Label>
+              <Select value={formData.language} onValueChange={(value) => updateFormData('language', value)}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {languages.map((lang) => (
+                    <SelectItem key={lang.id} value={lang.id}>
+                      <div className="flex items-center justify-between w-full">
+                        <span>{lang.name}</span>
+                        <span className="text-muted-foreground ml-2 text-sm">{lang.nativeName}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>

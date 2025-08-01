@@ -9,6 +9,7 @@ export interface StoryGenerationParams {
   pageCount: number;
   moralLesson: string;
   readingLevel: string;
+  language: string;
   geminiKey: string;
 }
 
@@ -89,8 +90,11 @@ class StoryService {
   private buildStoryPrompt(params: StoryGenerationParams): string {
     const ageGuidance = this.getAgeAppropriateGuidance(params.age);
     const readingLevelGuidance = this.getReadingLevelGuidance(params.readingLevel);
+    const languageInstruction = params.language !== 'english' 
+      ? `\n\nIMPORTANT: Write the entire story in ${this.getLanguageName(params.language)} language. Use proper ${this.getLanguageName(params.language)} grammar, vocabulary, and cultural context appropriate for children. The JSON structure should remain in English, but all story content (title, text) should be in ${this.getLanguageName(params.language)}.`
+      : '';
     
-    return `Create a personalized children's story with the following specifications:
+    return `Create a personalized children's story with the following specifications:${languageInstruction}
 
 STORY DETAILS:
 - Child's name: ${params.childName}
@@ -142,6 +146,34 @@ Please create a magical, engaging story that ${params.childName} will love!`;
     } else {
       return "- Use rich vocabulary and complex sentence structures\n- Include deeper themes like courage, perseverance, and empathy\n- Add some educational elements\n- Create more sophisticated plot developments";
     }
+  }
+
+  private getLanguageName(languageId: string): string {
+    const languages: Record<string, string> = {
+      english: 'English',
+      hindi: 'Hindi',
+      bengali: 'Bengali',
+      telugu: 'Telugu',
+      marathi: 'Marathi',
+      tamil: 'Tamil',
+      gujarati: 'Gujarati',
+      urdu: 'Urdu',
+      kannada: 'Kannada',
+      odia: 'Odia',
+      punjabi: 'Punjabi',
+      malayalam: 'Malayalam',
+      assamese: 'Assamese',
+      maithili: 'Maithili',
+      sanskrit: 'Sanskrit',
+      nepali: 'Nepali',
+      konkani: 'Konkani',
+      manipuri: 'Manipuri',
+      bodo: 'Bodo',
+      dogri: 'Dogri',
+      kashmiri: 'Kashmiri',
+      santali: 'Santali',
+    };
+    return languages[languageId] || 'English';
   }
 
   private getReadingLevelGuidance(level: string): string {

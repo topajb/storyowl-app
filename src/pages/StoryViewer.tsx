@@ -55,11 +55,9 @@ export default function StoryViewer() {
   };
 
   return (
-    <div className="min-h-screen">
-      <StoryBook 
-        story={story} 
-        onBackHome={handleBackHome}
-      />
-    </div>
+    <StoryBook 
+      story={story} 
+      onBackHome={handleBackHome}
+    />
   );
 }
