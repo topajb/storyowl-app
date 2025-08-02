@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Star, Sparkles, Heart, Rocket, Fish, TreePine, Castle, Wand2 } from 'lucide-react';
+import { Star, Sparkles, Heart, Rocket, Fish, TreePine, Castle, Wand2, Crown } from 'lucide-react';
 import { PhotoUpload } from '@/components/PhotoUpload';
 import { MeetYourHero } from '@/components/MeetYourHero';
 import { AvatarData } from '@/services/avatarService';
@@ -39,6 +39,7 @@ const themes = [
   { id: 'forest', name: 'Magical Forest', icon: TreePine, color: 'bg-gradient-to-r from-green-400 to-emerald-500' },
   { id: 'fairy-tale', name: 'Fairy Tale Castle', icon: Castle, color: 'bg-gradient-to-r from-pink-400 to-purple-500' },
   { id: 'magic', name: 'Wizard School', icon: Wand2, color: 'bg-gradient-to-r from-indigo-500 to-purple-600' },
+  { id: 'indian-mythology', name: 'Indian Mythology Adventure', icon: Crown, color: 'bg-gradient-to-r from-orange-400 to-red-500' },
 ];
 
 const languages = [

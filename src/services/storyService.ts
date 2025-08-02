@@ -98,8 +98,13 @@ class StoryService {
       : '';
     
     const avatarInstruction = params.avatarData 
-      ? `\n\nHERO CHARACTER: ${params.childName} should be described as: ${params.avatarData.description}. Make sure this character appears in every page of the story as the main protagonist.`
+      ? `\n\nHERO CHARACTER: ${params.childName} should be described as: ${params.avatarData.description}. Make sure this character appears in every page of the story as the main protagonist with consistent cartoon-style appearance, large expressive eyes, Indian features, and soft colors like Pixar/Indian storybooks.`
       : '';
+
+    // Special prompt for Indian Mythology theme
+    if (params.theme === 'indian-mythology') {
+      return this.buildIndianMythologyPrompt(params, languageInstruction, avatarInstruction, ageGuidance, readingLevelGuidance);
+    }
     
     return `Create a personalized children's story with the following specifications:${languageInstruction}${avatarInstruction}
 
@@ -141,6 +146,71 @@ IMPORTANT REQUIREMENTS:
 8. Make the story engaging and interactive
 
 Please create a magical, engaging story that ${params.childName} will love!`;
+  }
+
+  private buildIndianMythologyPrompt(
+    params: StoryGenerationParams,
+    languageInstruction: string,
+    avatarInstruction: string,
+    ageGuidance: string,
+    readingLevelGuidance: string
+  ): string {
+    return `Create a "Choose Your Own Adventure" children's story inspired by Indian mythology, spiritual heroes, and folktales:${languageInstruction}${avatarInstruction}
+
+STORY DETAILS:
+- Hero: ${params.childName} (cheerful child with cartoon-style avatar, large expressive eyes, Indian features, soft Pixar-like colors)
+- Age: ${params.age} years old
+- Setting: Divine/historical Indian locations (Vrindavan, Amritsar, Hampi, Panchatantra forests)
+- Language: ${this.getLanguageName(params.language)}
+- Pages: ${params.pageCount} scenes
+
+MYTHOLOGICAL CHARACTERS TO INCLUDE:
+- Lord Krishna (Vrindavan, flute, playfulness)
+- Lord Ganesha (wisdom, puzzle-solver)
+- Mata Parvati (compassion, courage)
+- Hanuman (devotion, strength)
+- Guru Nanak Dev Ji (peace, unity)
+- Talking animals from Panchatantra tales
+- Optional: Tenali Raman/Birbal for clever quests
+
+ADVENTURE MECHANICS:
+- Include 2-3 decision points per scene
+- Each choice leads to unique experiences
+- Multiple possible endings (happy, wise, funny, magical)
+
+WRITING GUIDELINES:
+${ageGuidance}
+${readingLevelGuidance}
+
+MORAL THEMES:
+- Bravery through devotion
+- Unity through understanding
+- Wisdom through kindness
+- Selflessness and seva
+- Inner light over fear
+
+RESPONSE FORMAT:
+{
+  "title": "Story Title",
+  "coverImagePrompt": "Cover showing ${params.childName} in divine Indian setting",
+  "pages": [
+    {
+      "pageNumber": 1,
+      "text": "Scene narrative with decision options: Choice A) [action] OR Choice B) [action]",
+      "imagePrompt": "Show ${params.childName} with [mythological character] in [location]. Cartoon-style, warm pastel palette, joyful and spiritual, consistent character design with large expressive eyes and Indian features"
+    }
+  ]
+}
+
+REQUIREMENTS:
+1. Make ${params.childName} the consistent hero throughout with SAME cartoon appearance
+2. Include rich Indian symbolism: glowing lotuses, celestial peacocks, divine instruments, mandala portals
+3. 2-3 decision points per scene with clear choices
+4. Whimsical yet sacred tone with spiritual depth
+5. Cultural pride and age-appropriate mythology
+6. Each image prompt must maintain character consistency
+
+Create a magical Indian mythology adventure where ${params.childName} meets divine beings and learns valuable lessons!`;
   }
 
   private getAgeAppropriateGuidance(age: number): string {
