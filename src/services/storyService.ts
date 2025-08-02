@@ -311,13 +311,18 @@ Create a magical Indian mythology adventure where ${params.childName} meets divi
     }
   }
 
-  private async generateImageWithPollinations(prompt: string, avatarData?: AvatarData): Promise<string> {
+  private async generateImageWithPollinations(prompt: string, avatarData?: AvatarData, theme?: string): Promise<string> {
     try {
       // Enhance prompt with avatar information if available
-      const avatarEnhancement = avatarData ? `, featuring ${avatarData.description}` : '';
+      const avatarEnhancement = avatarData ? `, featuring ${avatarData.description} as the main character` : '';
+      
+      // Special enhancement for Indian mythology theme
+      const themeEnhancement = theme === 'indian-mythology' 
+        ? ', Indian mythology style, divine spiritual atmosphere, glowing lotus flowers, celestial peacocks, warm golden light, traditional Indian art elements, cartoon style with large expressive eyes'
+        : ', children\'s book illustration style, vibrant colors, whimsical, magical';
       
       // Clean and enhance the prompt for better image quality
-      const enhancedPrompt = `${prompt}${avatarEnhancement}, high quality, detailed, beautiful, children's book illustration style, vibrant colors, whimsical, magical`
+      const enhancedPrompt = `${prompt}${avatarEnhancement}${themeEnhancement}, high quality, detailed, beautiful, soft pastels, warm colors`
         .replace(/[^a-zA-Z0-9\s,.-]/g, '') // Remove special characters
         .replace(/\s+/g, ' ') // Replace multiple spaces with single space
         .trim();
@@ -351,7 +356,7 @@ Create a magical Indian mythology adventure where ${params.childName} meets divi
     } catch (error) {
       console.error('Error generating image with Pollinations:', error);
       // Fallback to GET method if POST fails
-      const enhancedPrompt = `${prompt}, high quality, detailed, beautiful, children's book illustration style, vibrant colors, whimsical, magical`
+      const enhancedPrompt = `${prompt}, children's book illustration style, vibrant colors, whimsical, magical`
         .replace(/[^a-zA-Z0-9\s,.-]/g, '')
         .replace(/\s+/g, ' ')
         .trim();
@@ -372,7 +377,7 @@ Create a magical Indian mythology adventure where ${params.childName} meets divi
       onProgress(40, 'Creating beautiful cover art...');
 
       // Generate cover image
-      story.coverImage = await this.generateImageWithPollinations(story.coverImagePrompt, params.avatarData);
+      story.coverImage = await this.generateImageWithPollinations(story.coverImagePrompt, params.avatarData, params.theme);
       onProgress(60, 'Illustrating story pages...');
 
       // Generate images for each page
@@ -380,7 +385,7 @@ Create a magical Indian mythology adventure where ${params.childName} meets divi
       for (let i = 0; i < story.pages.length; i++) {
         const page = story.pages[i];
         try {
-          page.imageUrl = await this.generateImageWithPollinations(page.imagePrompt, params.avatarData);
+          page.imageUrl = await this.generateImageWithPollinations(page.imagePrompt, params.avatarData, params.theme);
           const progress = 60 + ((i + 1) / totalPages) * 35;
           onProgress(progress, `Illustrating page ${i + 1} of ${totalPages}...`);
         } catch (error) {
