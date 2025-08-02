@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCredits } from "@/hooks/useCredits";
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -68,7 +68,6 @@ const languages = [
 ];
 
 const StoryForm: React.FC<StoryFormProps> = ({ onSubmit, isLoading }) => {
-  const { canUseCredit } = useCredits();
   const [formData, setFormData] = useState<StoryFormData>({
     childName: '',
     age: 5,

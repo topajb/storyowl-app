@@ -5,8 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Home, BookOpen, Sparkles, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { CreditBalance } from '@/components/CreditBalance';
-
 export default function Navigation() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -50,7 +48,6 @@ export default function Navigation() {
 
           {/* Right side items */}
           <div className="flex items-center space-x-4">
-            <CreditBalance />
             <ThemeToggle />
             
             {/* Mobile menu button */}
