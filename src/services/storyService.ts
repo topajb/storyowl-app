@@ -24,8 +24,17 @@ export interface StoryPage {
 }
 
 export interface GeneratedStory {
-  title: string;
-  pages: StoryPage[];
+  child_name: string;
+  story_title: string;
+  story_text: string;
+  avatar_traits: string;
+  language: string;
+  story_uuid: string;
+  story_url: string;
+  creation_date: string;
+  credits_used: number;
+  title: string; // Required for backwards compatibility
+  pages: StoryPage[]; // Required for backwards compatibility
   coverImagePrompt: string;
   coverImage?: string;
 }
@@ -80,7 +89,7 @@ class StoryService {
       
       const storyText = data.candidates[0].content.parts[0].text;
       
-      return this.parseStoryResponse(storyText);
+      return this.parseStoryResponse(storyText, params);
     } catch (error) {
       console.error('Error generating story with Gemini:', error);
       if (error instanceof Error) {
@@ -124,15 +133,15 @@ ${readingLevelGuidance}
 RESPONSE FORMAT:
 Please return the story in the following JSON format:
 {
-  "title": "Story Title",
-  "coverImagePrompt": "Detailed prompt for cover illustration",
-  "pages": [
-    {
-      "pageNumber": 1,
-      "text": "Page text content",
-      "imagePrompt": "Detailed prompt for page illustration"
-    }
-  ]
+  "child_name": "${params.childName}",
+  "story_title": "Story Title",
+  "story_text": "Complete story narrative with all pages combined",
+  "avatar_traits": "${params.avatarData?.description || 'Cheerful child with cartoon features'}",
+  "language": "${this.getLanguageName(params.language)}",
+  "story_uuid": "abc123",
+  "story_url": "https://storybook.app/story/abc123",
+  "creation_date": "${new Date().toISOString().split('T')[0]}",
+  "credits_used": 1
 }
 
 IMPORTANT REQUIREMENTS:
@@ -191,15 +200,15 @@ MORAL THEMES:
 
 RESPONSE FORMAT:
 {
-  "title": "Story Title",
-  "coverImagePrompt": "Cover showing ${params.childName} in divine Indian setting",
-  "pages": [
-    {
-      "pageNumber": 1,
-      "text": "Scene narrative with decision options: Choice A) [action] OR Choice B) [action]",
-      "imagePrompt": "Show ${params.childName} with [mythological character] in [location]. Cartoon-style, warm pastel palette, joyful and spiritual, consistent character design with large expressive eyes and Indian features"
-    }
-  ]
+  "child_name": "${params.childName}",
+  "story_title": "Story Title",
+  "story_text": "Complete adventure story with all choices and paths combined into one narrative",
+  "avatar_traits": "${params.avatarData?.description || 'Cheerful child with cartoon features'}",
+  "language": "${this.getLanguageName(params.language)}",
+  "story_uuid": "abc123",
+  "story_url": "https://storybook.app/story/abc123",
+  "creation_date": "${new Date().toISOString().split('T')[0]}",
+  "credits_used": 1
 }
 
 REQUIREMENTS:
@@ -266,7 +275,7 @@ Create a magical Indian mythology adventure where ${params.childName} meets divi
     }
   }
 
-  private parseStoryResponse(responseText: string): GeneratedStory {
+  private parseStoryResponse(responseText: string, params?: StoryGenerationParams): GeneratedStory {
     try {
       // Try to extract JSON from the response
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -276,20 +285,49 @@ Create a magical Indian mythology adventure where ${params.childName} meets divi
 
       const storyData = JSON.parse(jsonMatch[0]);
       
-      // Validate the structure
-      if (!storyData.title || !storyData.pages || !Array.isArray(storyData.pages)) {
-        throw new Error('Invalid story structure');
+      // Check if it's the new JSON format
+      if (storyData.child_name && storyData.story_title && storyData.story_text) {
+        return {
+          child_name: storyData.child_name,
+          story_title: storyData.story_title,
+          story_text: storyData.story_text,
+          avatar_traits: storyData.avatar_traits || 'Cheerful child with cartoon features',
+          language: storyData.language || 'English',
+          story_uuid: this.generateUUID(),
+          story_url: `https://storybook.app/story/${this.generateUUID()}`,
+          creation_date: new Date().toISOString().split('T')[0],
+          credits_used: 1,
+          // Backwards compatibility
+          title: storyData.story_title,
+          pages: this.parseStoryTextToPages(storyData.story_text),
+          coverImagePrompt: `Cover illustration showing ${storyData.child_name} in magical adventure`,
+        };
       }
-
-      return {
-        title: storyData.title,
-        pages: storyData.pages.map((page: any, index: number) => ({
-          pageNumber: page.pageNumber || index + 1,
-          text: page.text || '',
-          imagePrompt: page.imagePrompt || `Illustration for page ${index + 1}`,
-        })),
-        coverImagePrompt: storyData.coverImagePrompt || `Cover illustration for ${storyData.title}`,
-      };
+      
+      // Handle old format
+      if (storyData.title && storyData.pages && Array.isArray(storyData.pages)) {
+        return {
+          child_name: params?.childName || 'Child',
+          story_title: storyData.title,
+          story_text: storyData.pages.map((p: any) => p.text).join(' '),
+          avatar_traits: params?.avatarData?.description || 'Cheerful child with cartoon features',
+          language: params ? this.getLanguageName(params.language) : 'English',
+          story_uuid: this.generateUUID(),
+          story_url: `https://storybook.app/story/${this.generateUUID()}`,
+          creation_date: new Date().toISOString().split('T')[0],
+          credits_used: 1,
+          // Backwards compatibility
+          title: storyData.title,
+          pages: storyData.pages.map((page: any, index: number) => ({
+            pageNumber: page.pageNumber || index + 1,
+            text: page.text || '',
+            imagePrompt: page.imagePrompt || `Illustration for page ${index + 1}`,
+          })),
+          coverImagePrompt: storyData.coverImagePrompt || `Cover illustration for ${storyData.title}`,
+        };
+      }
+      
+      throw new Error('Invalid story structure');
     } catch (error) {
       console.error('Error parsing story response:', error);
       
@@ -298,6 +336,16 @@ Create a magical Indian mythology adventure where ${params.childName} meets divi
       const title = lines[0] || 'A Magical Story';
       
       return {
+        child_name: params?.childName || 'Child',
+        story_title: title,
+        story_text: responseText || "Once upon a time, there was a wonderful adventure waiting to begin...",
+        avatar_traits: params?.avatarData?.description || 'Cheerful child with cartoon features',
+        language: params ? this.getLanguageName(params.language) : 'English',
+        story_uuid: this.generateUUID(),
+        story_url: `https://storybook.app/story/${this.generateUUID()}`,
+        creation_date: new Date().toISOString().split('T')[0],
+        credits_used: 1,
+        // Backwards compatibility
         title,
         pages: [
           {
@@ -309,6 +357,34 @@ Create a magical Indian mythology adventure where ${params.childName} meets divi
         coverImagePrompt: `Cover illustration for ${title}`,
       };
     }
+  }
+
+  private generateUUID(): string {
+    return Math.random().toString(36).substr(2, 9);
+  }
+
+  private parseStoryTextToPages(storyText: string): StoryPage[] {
+    // Split story into logical pages (roughly 50-100 words per page)
+    const words = storyText.split(' ');
+    const pages: StoryPage[] = [];
+    const wordsPerPage = 70;
+    
+    for (let i = 0; i < words.length; i += wordsPerPage) {
+      const pageWords = words.slice(i, i + wordsPerPage);
+      const pageText = pageWords.join(' ');
+      
+      pages.push({
+        pageNumber: pages.length + 1,
+        text: pageText,
+        imagePrompt: `Illustration showing the adventure scene: ${pageText.substring(0, 100)}...`,
+      });
+    }
+    
+    return pages.length > 0 ? pages : [{
+      pageNumber: 1,
+      text: storyText,
+      imagePrompt: "Magical adventure illustration",
+    }];
   }
 
   private async generateImageWithPollinations(prompt: string, avatarData?: AvatarData, theme?: string): Promise<string> {
