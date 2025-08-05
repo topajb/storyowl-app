@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/your-repo-name/' : '/',
+  base: '/', // Vercel serves from root, GitHub Pages needs repo name
   server: {
     host: "::",
     port: 8080,
