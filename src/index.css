@@ -32,17 +32,24 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
 
-    /* Custom magical colors */
-    --magical-purple: 268 83% 58%;
-    --magical-pink: 328 83% 65%;
-    --magical-blue: 220 70% 65%;
-    --sky-light: 200 100% 95%;
-    --sky-medium: 200 100% 85%;
+    /* Indian mythology inspired colors */
+    --saffron: 39 100% 67%;
+    --deity-gold: 43 96% 56%;
+    --lotus-pink: 350 89% 60%;
+    --ganges-blue: 206 100% 50%;
+    --forest-green: 120 60% 50%;
+    --peacock-blue: 197 71% 73%;
+    --temple-orange: 24 100% 50%;
+    --sacred-purple: 273 83% 58%;
+    --sky-light: 200 100% 97%;
+    --sky-medium: 39 100% 93%;
     
-    /* Gradients */
-    --gradient-magical: linear-gradient(135deg, hsl(var(--magical-purple)), hsl(var(--magical-pink)));
+    /* Indian mythology gradients */
+    --gradient-magical: linear-gradient(135deg, hsl(var(--saffron)), hsl(var(--deity-gold)));
     --gradient-sky: linear-gradient(180deg, hsl(var(--sky-light)), hsl(var(--sky-medium)));
-    --gradient-whimsical: linear-gradient(45deg, hsl(var(--magical-blue)), hsl(var(--magical-purple)));
+    --gradient-whimsical: linear-gradient(45deg, hsl(var(--peacock-blue)), hsl(var(--sacred-purple)));
+    --gradient-sunset: linear-gradient(45deg, hsl(var(--temple-orange)), hsl(var(--saffron)));
+    --gradient-forest: linear-gradient(45deg, hsl(var(--forest-green)), hsl(var(--ganges-blue)));
     
     /* Shadows */
     --shadow-magical: 0 10px 40px -10px hsl(var(--magical-purple) / 0.3);
@@ -72,17 +79,24 @@
     --input: 220 15% 20%;
     --ring: 268 83% 65%;
     
-    /* Dark theme magical colors */
-    --magical-purple: 268 83% 65%;
-    --magical-pink: 328 83% 70%;
-    --magical-blue: 220 70% 70%;
+    /* Dark theme Indian mythology colors */
+    --saffron: 39 100% 70%;
+    --deity-gold: 43 96% 60%;
+    --lotus-pink: 350 89% 65%;
+    --ganges-blue: 206 100% 55%;
+    --forest-green: 120 60% 55%;
+    --peacock-blue: 197 71% 78%;
+    --temple-orange: 24 100% 55%;
+    --sacred-purple: 273 83% 65%;
     --sky-light: 220 15% 12%;
     --sky-medium: 220 15% 8%;
     
     /* Dark theme gradients */
-    --gradient-magical: linear-gradient(135deg, hsl(var(--magical-purple)), hsl(var(--magical-pink)));
+    --gradient-magical: linear-gradient(135deg, hsl(var(--saffron)), hsl(var(--deity-gold)));
     --gradient-sky: linear-gradient(180deg, hsl(var(--sky-light)), hsl(var(--sky-medium)));
-    --gradient-whimsical: linear-gradient(45deg, hsl(var(--magical-blue)), hsl(var(--magical-purple)));
+    --gradient-whimsical: linear-gradient(45deg, hsl(var(--peacock-blue)), hsl(var(--sacred-purple)));
+    --gradient-sunset: linear-gradient(45deg, hsl(var(--temple-orange)), hsl(var(--saffron)));
+    --gradient-forest: linear-gradient(45deg, hsl(var(--forest-green)), hsl(var(--ganges-blue)));
     
     /* Dark theme shadows */
     --shadow-magical: 0 10px 40px -10px hsl(var(--magical-purple) / 0.5);

@@ -51,22 +51,22 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStartCreating }) => {
 
   const sampleStories = [
     {
-      title: "Luna's Space Adventure",
-      theme: "Space",
-      age: "Ages 5-8",
-      description: "Join Luna as she explores distant planets and makes alien friends!"
+      title: "Krishna's Magical Flute",
+      theme: "Krishna",
+      age: "Ages 4-8",
+      description: "Follow young Krishna as his enchanted flute brings peace to the forest and befriends all creatures!"
     },
     {
-      title: "The Underwater Kingdom",
-      theme: "Ocean",
-      age: "Ages 4-7",
-      description: "Discover the magical world beneath the waves with friendly sea creatures."
+      title: "Ganesha's Wisdom Quest",
+      theme: "Ganesha",
+      age: "Ages 5-9",
+      description: "Join the beloved elephant god on a journey to help a village using his clever wisdom and kind heart."
     },
     {
-      title: "Magic Forest Friends",
-      theme: "Fantasy",
+      title: "Hanuman's Courage Adventure",
+      theme: "Hanuman",
       age: "Ages 6-10",
-      description: "A tale of friendship and courage in an enchanted woodland."
+      description: "Discover how the mighty Hanuman uses his strength and devotion to overcome challenges and help others."
     }
   ];
 
@@ -85,12 +85,11 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStartCreating }) => {
                 </Badge>
                 <h1 className="story-title text-5xl lg:text-6xl font-bold text-foreground leading-tight">
                   Create Magical
-                  <span className="bg-gradient-magical bg-clip-text text-transparent"> Stories </span>
+                  <span className="bg-gradient-magical bg-clip-text text-transparent"> Mythology Stories </span>
                   for Your Child
                 </h1>
                 <p className="text-xl text-muted-foreground leading-relaxed max-w-lg">
-                  Generate personalized, illustrated children's books with AI. 
-                  Watch your child become the hero of their own magical adventure!
+                  Journey through ancient Indian mythology with AI-generated stories featuring Krishna, Ganesha, Hanuman, and magical adventures!
                 </p>
               </div>
 
