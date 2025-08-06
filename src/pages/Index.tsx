@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import WelcomeScreen from '@/components/WelcomeScreen';
-import MythologyStoryForm from '@/components/MythologyStoryForm';
+import StoryForm from '@/components/StoryForm';
 import LoadingScreen from '@/components/LoadingScreen';
-import MythologyStoryBook from '@/components/MythologyStoryBook';
-import { mythologyStoryService, type MythologyStoryParams, type GeneratedMythologyStory } from '@/services/mythologyStoryService';
+import StoryBook from '@/components/StoryBook';
+import { storyService, type StoryGenerationParams, type GeneratedStory } from '@/services/storyService';
 
 type AppState = 'welcome' | 'form' | 'loading' | 'reading';
 
 const Index = () => {
   const [currentState, setCurrentState] = useState<AppState>('welcome');
-  const [generatedStory, setGeneratedStory] = useState<GeneratedMythologyStory | null>(null);
+  const [generatedStory, setGeneratedStory] = useState<GeneratedStory | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingStep, setLoadingStep] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -18,14 +18,14 @@ const Index = () => {
     setCurrentState('form');
   };
 
-  const handleFormSubmit = async (formData: MythologyStoryParams) => {
+  const handleFormSubmit = async (formData: StoryGenerationParams) => {
     setIsGenerating(true);
     setCurrentState('loading');
     setLoadingProgress(0);
-    setLoadingStep('Initializing mythology story creation...');
+    setLoadingStep('Initializing story creation...');
 
     try {
-      const story = await mythologyStoryService.generateCompleteStory(
+      const story = await storyService.generateCompleteStory(
         formData,
         (progress, step) => {
           setLoadingProgress(progress);
@@ -55,14 +55,14 @@ const Index = () => {
       return <WelcomeScreen onStartCreating={handleStartCreating} />;
     
     case 'form':
-      return <MythologyStoryForm onSubmit={handleFormSubmit} isLoading={isGenerating} />;
+      return <StoryForm onSubmit={handleFormSubmit} isLoading={isGenerating} />;
     
     case 'loading':
       return <LoadingScreen progress={loadingProgress} currentStep={loadingStep} />;
     
     case 'reading':
       return generatedStory ? (
-        <MythologyStoryBook story={generatedStory} onBackHome={handleBackHome} />
+        <StoryBook story={generatedStory} onBackHome={handleBackHome} />
       ) : (
         <WelcomeScreen onStartCreating={handleStartCreating} />
       );
