@@ -20,8 +20,10 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         magical: "bg-gradient-magical text-white shadow-magical hover:shadow-lg hover:scale-105 font-semibold",
-        whimsical: "bg-secondary text-secondary-foreground border-2 border-accent shadow-soft hover:shadow-magical hover:scale-105 hover:bg-accent hover:text-accent-foreground",
+        whimsical: "bg-gradient-whimsical text-white shadow-soft hover:shadow-magical hover:scale-105 font-medium",
         story: "bg-gradient-sunset text-warning-foreground shadow-soft hover:shadow-book hover:scale-105 font-medium",
+        divine: "bg-gradient-divine text-warning-foreground shadow-soft hover:shadow-magical hover:scale-105 font-semibold",
+        forest: "bg-gradient-forest text-success-foreground shadow-soft hover:shadow-book hover:scale-105 font-medium",
         success: "bg-success text-success-foreground hover:bg-success/90 shadow-soft",
       },
       size: {

@@ -13,60 +13,60 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStartCreating }) => {
   const features = [
     {
       icon: Sparkles,
-      title: 'AI-Generated Stories',
-      description: 'Unique, personalized tales created just for your child',
+      title: 'Divine AI Stories',
+      description: 'Personalized mythology tales with Krishna, Ganesha, and Hanuman',
       color: 'text-primary'
     },
     {
       icon: Palette,
-      title: 'Beautiful Illustrations',
-      description: 'Stunning AI artwork to bring stories to life',
+      title: 'Cultural Illustrations',
+      description: 'Beautiful Indian artwork and divine characters',
       color: 'text-accent'
     },
     {
       icon: Heart,
       title: 'Age-Appropriate',
-      description: 'Content tailored to your child\'s reading level',
+      description: 'Sacred stories adapted for your child\'s understanding',
       color: 'text-destructive'
     },
     {
       icon: Users,
-      title: 'Character Customization',
-      description: 'Include your child as the main character',
+      title: 'Your Child as Hero',
+      description: 'Your little one meets gods and learns ancient wisdom',
       color: 'text-secondary'
     },
     {
       icon: Clock,
-      title: 'Quick Generation',
-      description: 'Stories ready in minutes, not hours',
+      title: 'Instant Magic',
+      description: 'Divine stories generated in minutes with AI',
       color: 'text-warning'
     },
     {
       icon: BookOpen,
-      title: 'Interactive Reading',
-      description: 'Engaging book-like experience with page turns',
+      title: 'Interactive Adventures',
+      description: 'Choose-your-own-adventure with moral lessons',
       color: 'text-success'
     }
   ];
 
   const sampleStories = [
     {
-      title: "Luna's Space Adventure",
-      theme: "Space",
+      title: "Krishna's Divine Flute",
+      theme: "Krishna",
       age: "Ages 5-8",
-      description: "Join Luna as she explores distant planets and makes alien friends!"
+      description: "Journey to Vrindavan where your child learns music from Lord Krishna and dances with peacocks!"
     },
     {
-      title: "The Underwater Kingdom",
-      theme: "Ocean",
+      title: "Ganesha's Wisdom Quest",
+      theme: "Ganesha",
       age: "Ages 4-7",
-      description: "Discover the magical world beneath the waves with friendly sea creatures."
+      description: "Your little one seeks Lord Ganesha's blessings to solve puzzles and remove obstacles."
     },
     {
-      title: "Magic Forest Friends",
-      theme: "Fantasy",
+      title: "Hanuman's Forest Adventure",
+      theme: "Hanuman",
       age: "Ages 6-10",
-      description: "A tale of friendship and courage in an enchanted woodland."
+      description: "Meet the mighty Hanuman in sacred mountains and learn about courage and devotion."
     }
   ];
 
@@ -85,12 +85,12 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStartCreating }) => {
                 </Badge>
                 <h1 className="story-title text-5xl lg:text-6xl font-bold text-foreground leading-tight">
                   Create Magical
-                  <span className="bg-gradient-magical bg-clip-text text-transparent"> Stories </span>
+                  <span className="bg-gradient-magical bg-clip-text text-transparent"> Mythology Stories </span>
                   for Your Child
                 </h1>
                 <p className="text-xl text-muted-foreground leading-relaxed max-w-lg">
-                  Generate personalized, illustrated children's books with AI. 
-                  Watch your child become the hero of their own magical adventure!
+                  Generate personalized Indian mythology tales with AI. 
+                  Watch your child meet Krishna, Ganesha, Hanuman and become the hero of their own divine adventure!
                 </p>
               </div>
 
@@ -150,10 +150,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStartCreating }) => {
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="story-title text-3xl font-bold text-foreground mb-4">
-            Why Choose StoryBook Creator?
+            Why Choose Mythology StoryBook?
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Everything you need to create magical, personalized stories that your children will treasure forever.
+            Connect your child with ancient Indian wisdom through personalized divine adventures.
           </p>
         </div>
 
@@ -183,10 +183,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStartCreating }) => {
       <div className="container mx-auto px-4 py-16 bg-card/50 rounded-3xl mx-4 shadow-soft">
         <div className="text-center mb-12">
           <h2 className="story-title text-3xl font-bold text-foreground mb-4">
-            Sample Magical Stories
+            Sample Divine Adventures
           </h2>
           <p className="text-muted-foreground text-lg">
-            Get inspired by these wonderful tales created with our AI
+            Discover these enchanting mythology tales created for children like yours
           </p>
         </div>
 
